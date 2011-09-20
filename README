@@ -1,0 +1,30 @@
+Baan omni completion for vim
+
+Features:
+    Function argument completion
+    completeopt+=preview support, displaying DllUsage/EndDllUsage comments
+
+Installation:
+
+Copy baancomplete.vim into your ~/.vim/autoload/ or $VIMRUNTIME/autoload directory.
+Make sure to enable ftplugins via 'filetype plugin on'.
+Filetype detection will then set up the omni-completion appropriately.
+If it doesn't you will need to add "set omnifunc=baancomplete#Complete" in your .vimrc
+
+Generating the api-documentation:
+
+baancomplete needs an API file for the completion to work.
+This API file isn't shipped. 
+Instead it contains a script (gen_api.py) with which you may generate an API file yourself.
+
+You'll need to export the program scripts documents from within BAAN using the ttstpbaandoc session.
+See dlls.txt for documentations you'll want to export.
+
+After that you can run gen_api.py to generate your api file.
+Copy that file to $HOME/.vim/plugin/baancomplete_api.sqlite and you're done.
+
+Requirements:
+
+Vim7 compiled with +python support.
+
+Python 2.7 with BeautifulSoup for gen_api.py
