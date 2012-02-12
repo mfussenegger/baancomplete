@@ -60,7 +60,7 @@ endfunction
 function! s:DefPython()
 python << PYTHONEOF
 
-import vim, os, pickle, sqlite3
+import vim, os, sqlite3
 
 debugstmts = []
 def dbg(s):

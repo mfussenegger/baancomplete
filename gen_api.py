@@ -5,7 +5,6 @@ from __future__ import division, absolute_import, print_function, unicode_litera
 import re
 import sqlite3
 import os
-import pickle
 from BeautifulSoup import BeautifulSoup
 
 class FunctionDesc(object):
@@ -27,7 +26,6 @@ class ApiDocParser(object):
         with open(self._filepath) as fp:
             contents = fp.read()
 
-        
         desc_pattern = '<p class="FirstPara">(.*)<b>(.*)</b>(.*)</p>'
         rex_desc = re.compile(desc_pattern)
 
@@ -52,7 +50,7 @@ class ApiDocParser(object):
             f_doc = f_doc.replace('&gt;', '>')
 
             # baancomplete.vim doesn't like double quotes
-            f_doc = f_doc.replace('&quot;', "'")   
+            f_doc = f_doc.replace('&quot;', "'")
             f_doc += '%s%s' % (os.linesep, os.path.basename(self._filepath))
 
             self._function_descriptions.append(
@@ -80,7 +78,7 @@ create table functions (
         self._conn.commit()
 
     def append(self, function_desc):
-        self._c.execute('insert into functions (word, menu, info) values (?, ?, ?)', 
+        self._c.execute('insert into functions (word, menu, info) values (?, ?, ?)',
                 (function_desc.name,
                 function_desc.parameters,
                 function_desc.doc))
@@ -88,19 +86,6 @@ create table functions (
     def close(self):
         self._conn.commit()
         self._conn.close()
-
-class PickleOutput(object):
-    def __init__(self):
-        pass
-        
-#api.append({
-#'word' : word,
-#'menu' : menu,
-#'info' : info
-#})
-
-#with open('c:\\temp\\api.pkl', 'wb') as output:
-#    pickle.dump(api, output)
 
 class SciteOutput(object):
     def __init__(self, output_path):
@@ -121,11 +106,11 @@ class SciteOutput(object):
 if __name__ == '__main__':
     path = raw_input('path to baan html documentations: ')
     vimoutput = VimOutput(raw_input('path to vimcomplete output: '))
-    for file in os.listdir(path):
-        if not os.path.isfile(os.path.join(path, file)):
+    for fi in os.listdir(path):
+        if not os.path.isfile(os.path.join(path, fi)):
             continue
 
-        aparser = ApiDocParser(os.path.join(path, file))
+        aparser = ApiDocParser(os.path.join(path, fi))
         aparser.parse()
         for f in aparser.get_function_descriptions():
             vimoutput.append(f)
