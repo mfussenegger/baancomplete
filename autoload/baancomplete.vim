@@ -1,14 +1,27 @@
-"baancomplete.vim - Omni Completion for baan scripts
-" Maintainer:   Mathias Fussenegger < f.mathias {at} zignar.net >
-" Version: 0.1
-" Last Updated: 2011-09-18
+" File: baancomplete.vim
+" Author: Mathias Fussenegger < f.mathias 0x40 zignar.net >
+" Description: Omni Completion for baan-c (the Infor ERP LN Scripting language)
+" Version: 0.2
+" Created: September 18, 2011
+" Last Modified: February 11, 2012
 "
 " The vimscript part is taken from pythoncomplete.vim
+"
+
+if exists('did_baancomplete') || &cp || version < 700
+    finish
+endif
+let did_baancomplete = 1
 
 if !has('python')
     echo 'Error: Required vim compiled with +python'
     finish
 endif
+
+function! baancomplete#meetsForAcp(context)
+    return a:context =~# '\v\k{3,}$'
+endfunction
+
 
 function! baancomplete#Complete(findstart, base)
     "findstart = 1 when we need to get the text length
