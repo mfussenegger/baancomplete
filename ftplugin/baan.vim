@@ -14,7 +14,7 @@ set completefunc=syntaxcomplete#Complete
 " Then syntax- and finally omnicompletion
 
 if exists("g:acp_behavior")
-    if exists("g:acp_behavior_set") ==# 0
+    if !exists("g:acp_behavior_set")
         let g:acp_behavior_set = 1
         let g:acp_behavior = { 'baan' : [] }
 

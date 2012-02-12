@@ -5,8 +5,6 @@
 " Created: September 18, 2011
 " Last Modified: February 11, 2012
 "
-" The vimscript part is taken from pythoncomplete.vim
-"
 
 if exists('did_baancomplete') || &cp || version < 700
     finish
@@ -19,46 +17,42 @@ if !has('python')
 endif
 
 function! baancomplete#meetsForAcp(context)
+    " 3 or more keyword characters are necessary for completion to kick in
     return a:context =~# '\v\k{3,}$'
 endfunction
 
 
+" see :help complete-functions for more details on how baancomplete#Complete works
+"
+"
+"
+" example:
+"
+" column: 123456789
+" word  : t dal.s
+"
+"
+" findstart == 1
+" We never want to replace anything before the cursor. So we return the current
+" column (8)
+"
+" findstart == 0
+" determine the word to lookup (in our example dal.s )
+
 function! baancomplete#Complete(findstart, base)
-    "findstart = 1 when we need to get the text length
     if a:findstart == 1
+        return col('.')
+
+    else
         let line = getline('.')
-        let idx = col('.')
-        while idx > 0
+        let idx = col('.') - 1
+
+        while idx > 0 && line[idx - 1] =~ '\k'
             let idx -= 1
-            let c = line[idx]
-            if c =~ '\w'
-                continue
-            elseif ! c =~ '\.'
-                let idx = -1
-                break
-            else
-                break
-            endif
         endwhile
 
-        return idx
-    "findstart = 0 when we need to return the list of completions
-    else
-        "vim no longer moves the cursor upon completion... fix that
-        let line = getline('.')
-        let idx = col('.')
-        let cword = ''
-        while idx > 0
-            let idx -= 1
-            let c = line[idx]
-            if c =~ '\w' || c =~ '\.'
-                let cword = c . cword
-                continue
-            elseif strlen(cword) > 0 || idx == 0
-                break
-            endif
-        endwhile
-        execute "python vimcomplete('" . cword . "', '" . a:base . "')"
+        let context = line[idx : col('.')]
+        execute "python vimcomplete('" . context . "')"
         return g:baancomplete_completions
     endif
 endfunction
@@ -80,42 +74,35 @@ vi_home = os.path.join(os.environ.get('HOME'), '.vim', 'plugin')
 api_file = os.path.join(vi_home, 'baancomplete_api.sqlite')
 api_file_exists = os.path.isfile(api_file)
 
-#with open(os.path.join(vi_home, 'baancomplete_api.pkl'), 'rb') as api_fi:
-#    api = pickle.load(api_fi)
-
 if api_file_exists:
     conn = sqlite3.connect( os.path.join(vi_home, 'baancomplete_api.sqlite'))
     conn.row_factory = sqlite3.Row
     cur = conn.cursor()
 
-def vimcomplete(context, match):
+def vimcomplete(context):
     global debugstmts
     debugstmts = []
-    #dbg(context)
-    #dbg(match)
     dictstr = '['
     if api_file_exists:
-        completions = get_completions(context, match)
+        completions = get_completions(context)
     else:
         dbg('api file not found')
         completions = []
     for compl in completions:
         dictstr += '{"word":"%s","abbr":"%s","menu":"%s","info":"%s","icase":0},' % (
             compl['word'], compl['abbr'], compl['menu'], compl['info'])
-    if dictstr[-1] == ',':
-        dictstr = dictstr[:-1]
     dictstr += ']'
-    #dbg(dictstr)
     vim.command('silent let g:baancomplete_completions = %s' % dictstr)
 
-def get_completions(context, match):
+def get_completions(context):
     completions = []
     search_term = context + '%'
     cur.execute('select word, menu, info from functions where word like ?', (search_term,))
-    #for item in api:
     for item in cur.fetchall():
-        #if item['word'].startswith(context):
         word = item['word'][len(context):]
+        info = item['info']
+        #if not info or len(info.strip()) == 0:
+        #    info = ' ' # clear preview window if no new info
         dbg('%s, %s, %s' % (context, word, item['word']))
         completions.append({
             'menu' : item['menu'],
