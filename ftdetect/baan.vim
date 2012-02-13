@@ -1,1 +1,1 @@
-au BufRead,BufNewFile *.bc,*.cln setfiletype=baan
+au BufRead,BufNewFile *.bc,*.cln set filetype=baan
