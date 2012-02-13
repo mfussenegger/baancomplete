@@ -5,11 +5,16 @@
 " Created: September 18, 2011
 " Last Modified: February 11, 2012
 "
+"
 
 if exists('did_baancomplete') || &cp || version < 700
     finish
 endif
 let did_baancomplete = 1
+
+if !exists("g:baancomplete_path")
+    let g:baancomplete_path = expand("<sfile>:h")
+endif
 
 if !has('python')
     echo 'Error: Required vim compiled with +python'
@@ -62,31 +67,21 @@ python << PYTHONEOF
 
 import vim, os, sqlite3
 
-debugstmts = []
-def dbg(s):
-    debugstmts.append(s)
-def showdbg():
-    for d in debugstmts:
-        print 'DBG: %s' % d
-
-
-vi_home = os.path.join(os.environ.get('HOME'), '.vim', 'plugin')
-api_file = os.path.join(vi_home, 'baancomplete_api.sqlite')
+baancomplete_path = vim.eval("g:baancomplete_path")
+api_file = os.path.join(baancomplete_path, 'baancomplete_api.sqlite')
 api_file_exists = os.path.isfile(api_file)
 
 if api_file_exists:
-    conn = sqlite3.connect( os.path.join(vi_home, 'baancomplete_api.sqlite'))
+    conn = sqlite3.connect(api_file)
     conn.row_factory = sqlite3.Row
     cur = conn.cursor()
 
 def vimcomplete(context):
-    global debugstmts
-    debugstmts = []
     dictstr = '['
     if api_file_exists:
         completions = get_completions(context)
     else:
-        dbg('api file not found')
+        vim.command('echom "api file not found"')
         completions = []
     for compl in completions:
         dictstr += '{"word":"%s","abbr":"%s","menu":"%s","info":"%s","icase":0},' % (
@@ -97,13 +92,11 @@ def vimcomplete(context):
 def get_completions(context):
     completions = []
     search_term = context + '%'
-    cur.execute('select word, menu, info from functions where word like ?', (search_term,))
-    for item in cur.fetchall():
+    cur.execute('select word, menu, info from functions where word like ? limit 20', (search_term,))
+    for item in cur:
         word = item['word'][len(context):]
         info = item['info']
-        #if not info or len(info.strip()) == 0:
-        #    info = ' ' # clear preview window if no new info
-        dbg('%s, %s, %s' % (context, word, item['word']))
+
         completions.append({
             'menu' : item['menu'],
             'word' : word,
