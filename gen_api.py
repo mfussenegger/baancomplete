@@ -5,6 +5,7 @@ from __future__ import division, absolute_import, print_function, unicode_litera
 import re
 import sqlite3
 import os
+from getpass import getpass
 from clint import args
 from clint.textui import puts, colored, indent
 
@@ -167,7 +168,7 @@ def from_db():
     host = raw_input('sql server: ')
     user = raw_input('username: ')
     database = raw_input('database name: ')
-    password = raw_input('password: ')
+    password = getpass()
 
     conn = db.connect(host=host,
                       user=user,
