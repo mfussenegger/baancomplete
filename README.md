@@ -2,8 +2,10 @@
 
 ### Features:
 
-Function argument completion
-completeopt+=preview support, displaying DllUsage/EndDllUsage comments
+* Function argument completion
+* completeopt+=preview support, displaying DllUsage/EndDllUsage comments
+
+![baancomplete in action](https://zignar.net/_uploads/baancomplete.png)
 
 ### Installation:
 
