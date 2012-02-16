@@ -16,25 +16,27 @@ set completefunc=syntaxcomplete#Complete
 if exists("g:acp_behavior")
     if !exists("g:acp_behavior_set")
         let g:acp_behavior_set = 1
-        let g:acp_behavior = { 'baan' : [] }
+        let behavior = { 'baan' : [] }
 
 
-        call add(g:acp_behavior['baan'], {
+        call add(behavior['baan'], {
                     \   'command' : "\<C-x>\<C-p>",
                     \   'meets'   : 'acp#meetsForKeyword',
                     \   'repeat'  : 0,
                     \ })
-        call add(g:acp_behavior['baan'], {
+        call add(behavior['baan'], {
                     \   'command'      : "\<C-x>\<C-u>",
                     \   'completefunc' : 'syntaxcomplete#Complete',
                     \   'meets'        : 'baancomplete#meetsForAcp',
                     \   'repeat'       : 0,
                     \ })
-        call add(g:acp_behavior['baan'], {
+        call add(behavior['baan'], {
                     \   'command'      : "\<C-x>\<C-o>",
                     \   'completefunc' : 'baancomplete#Complete',
                     \   'meets'        : 'baancomplete#meetsForAcp',
                     \   'repeat'       : 0,
                     \ })
+
+        call extend(g:acp_behavior, behavior, 'keep')
     endif
 endif
