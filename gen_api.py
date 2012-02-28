@@ -142,8 +142,19 @@ select
 
 from
 	tttadv422000 tablefields
-order by
-	convert(nvarchar, t_cpac + t_cmod + t_flno + '.' + t_fdnm)
+union
+SELECT
+	distinct
+	word = tttadv401000.t_cpac + t_cdom + '.' + t_ctnm
+	,menu = t_desc
+from
+	tttadv401000
+	inner join tttadv140000
+		on tttadv401000.t_cpac = tttadv140000.t_cpac
+        and t_clan = 2
+		and t_clab = t_za_clab
+where
+    t_expi = 2
 '''
     cur = conn.cursor()
     cur.execute(sql)
