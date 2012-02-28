@@ -70,6 +70,8 @@ class SqliteOutput(object):
         self.conn = None
         self.cur = None
         self.create_db(path)
+        self.cur.execute('select word from functions')
+        self.words = set([w[0] for w in self.cur.fetchall()])
 
     def create_db(self, path):
         self.conn = sqlite3.connect(path)
@@ -82,8 +84,13 @@ class SqliteOutput(object):
             self.conn.commit()
 
     def append(self, function):
-        self.cur.execute('select word from functions where word = ?', (function.name,))
-        if not self.cur.fetchone():
+        if function.name in self.words:
+            self.cur.execute(
+                'update functions set menu = ?, info = ? where word = ?',
+                (function.parameters,
+                 function.doc,
+                 function.name))
+        else:
             self.cur.execute('insert into functions (word, menu, info) values (?, ?, ?)',
                     (function.name,
                     function.parameters,
@@ -109,7 +116,11 @@ select
 						labels.t_clan = 2
 						and labels.t_lhgt = 1
 						and labels.t_cpac = tablefields.t_cpac
-						and labels.t_clab = tablefields.t_cpac + tablefields.t_cmod + tablefields.t_flno + '.' + tablefields.t_fdnm
+						and labels.t_clab = tablefields.t_cpac
+                                                + tablefields.t_cmod
+                                                + tablefields.t_flno
+                                                + '.'
+                                                + tablefields.t_fdnm
 					order by
 						labels.t_leng desc
 					)
@@ -123,14 +134,11 @@ select
 						and labels.t_cpac = tablefields.t_cpac
 						and labels.t_clab = tablefields.t_clab
 						and labels.t_lhgt = 1
-						--and labels.t_vers = tablefields.t_vers
-						--and labels.t_rele = tablefields.t_rele
-						--and labels.t_cust = tablefields.t_cust
 					order by
 						labels.t_leng desc
 					)
 
-				end), ''))
+				end), '')) + ' | ' + tablefields.t_pacd + tablefields.t_cdom
 
 from
 	tttadv422000 tablefields
