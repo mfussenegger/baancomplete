@@ -7,6 +7,7 @@ import sqlite3
 import os
 from getpass import getpass
 from clint import args
+from clint import resources
 from clint.textui import puts, colored, indent
 
 from BeautifulSoup import BeautifulSoup
@@ -184,9 +185,18 @@ def from_db():
     if db == 'mssql':
         import pymssql as db
 
-    host = raw_input('sql server: ')
-    user = raw_input('username: ')
-    database = raw_input('database name: ')
+    resources.init('baancomplete', 'baancomplete')
+    if args.grouped.has_key('--use-config'):
+        host = resources.user.read('host')
+        user = resources.user.read('user')
+        database = resources.user.read('database')
+    else:
+        host = raw_input('sql server: ')
+        user = raw_input('username: ')
+        database = raw_input('database name: ')
+        resources.user.write('host', host)
+        resources.user.write('user', user)
+        resources.user.write('database', database)
     password = getpass()
 
     conn = db.connect(host=host,
@@ -215,6 +225,7 @@ def print_help():
         puts('{0} {1} {2} {3}'.format(
             colored.green('--db'),
             colored.yellow('[mssql]'),
+            colored.green('--use-config'),
             colored.green('--out'),
             colored.yellow('[file]')
         ))
