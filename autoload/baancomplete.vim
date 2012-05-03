@@ -74,6 +74,7 @@ api_file_exists = os.path.isfile(api_file)
 if api_file_exists:
     conn = sqlite3.connect(api_file)
     conn.row_factory = sqlite3.Row
+    conn.text_factory = lambda x: unicode(x, 'utf-8', 'ignore').encode('utf-8')
     cur = conn.cursor()
 
 def vimcomplete(context):
